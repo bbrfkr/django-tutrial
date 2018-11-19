@@ -1,0 +1,45 @@
+version: '3'
+
+services:
+  mysite:
+    build: mysite
+    image: bbrfkr0129/mysite
+    environment:
+      MYSQL_DATABASE: mysite
+      MYSQL_USER: mysite
+      MYSQL_PASSWORD: password
+      MYSQL_HOSTNAME: mysql
+    networks:
+    - mysite
+  mysql:
+    build: mysql
+    image: bbrfkr0129/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: p@ssw0rd
+      MYSQL_DATABASE: mysite
+      MYSQL_USER: mysite
+      MYSQL_PASSWORD: password
+    volumes:
+    - "mysql_data:/var/lib/mysql"
+    - "./mysql/conf.d/:/etc/mysql/conf.d"
+    networks:
+    - mysite
+  nginx:
+    build: nginx
+    image: bbrfkr0129/nginx
+    ports:
+    - "80:80"
+    environment:
+      UWSGI_HOST: mysite
+    volumes:
+    - "./mysite/mysite/static:/static"
+    networks:
+    - mysite
+
+volumes:
+  mysql_data:
+    driver: local
+
+networks:
+  mysite:
+    driver: bridge
